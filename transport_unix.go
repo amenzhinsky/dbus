@@ -95,8 +95,8 @@ func (t *unixTransport) ReadMessage() (*Message, error) {
 	}
 	// csheader[4:8] -> length of message body, csheader[12:16] -> length of
 	// header fields (without alignment)
-	binary.Read(bytes.NewBuffer(csheader[4:8]), order, &blen)
-	binary.Read(bytes.NewBuffer(csheader[12:]), order, &hlen)
+	binary.Read(bytes.NewReader(csheader[4:8]), order, &blen)
+	binary.Read(bytes.NewReader(csheader[12:]), order, &hlen)
 	if hlen%8 != 0 {
 		hlen += 8 - (hlen % 8)
 	}
@@ -107,7 +107,7 @@ func (t *unixTransport) ReadMessage() (*Message, error) {
 	if _, err := io.ReadFull(t, headerdata[4:]); err != nil {
 		return nil, err
 	}
-	dec := newDecoder(bytes.NewBuffer(headerdata), order)
+	dec := newDecoder(bytes.NewReader(headerdata), order)
 	dec.pos = 12
 	vs, err := dec.Decode(Signature{"a(yv)"})
 	if err != nil {
@@ -141,7 +141,7 @@ func (t *unixTransport) ReadMessage() (*Message, error) {
 		if err != nil {
 			return nil, err
 		}
-		msg, err := DecodeMessage(bytes.NewBuffer(all))
+		msg, err := DecodeMessage(bytes.NewReader(all))
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +169,7 @@ func (t *unixTransport) ReadMessage() (*Message, error) {
 		}
 		return msg, nil
 	}
-	return DecodeMessage(bytes.NewBuffer(all))
+	return DecodeMessage(bytes.NewReader(all))
 }
 
 func (t *unixTransport) SendMessage(msg *Message) error {

@@ -162,11 +162,11 @@ func DecodeMessage(rd io.Reader) (msg *Message, err error) {
 	if err != nil {
 		return nil, err
 	}
-	binary.Read(bytes.NewBuffer(b), order, &hlength)
+	binary.Read(bytes.NewReader(b), order, &hlength)
 	if hlength+length+16 > 1<<27 {
 		return nil, InvalidMessageError("message is too long")
 	}
-	dec = newDecoder(io.MultiReader(bytes.NewBuffer(b), rd), order)
+	dec = newDecoder(io.MultiReader(bytes.NewReader(b), rd), order)
 	dec.pos = 12
 	vs, err = dec.Decode(Signature{"a(yv)"})
 	if err != nil {
