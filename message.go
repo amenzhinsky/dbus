@@ -182,21 +182,11 @@ func DecodeMessage(rd io.Reader) (msg *Message, err error) {
 	}
 
 	dec.align(8)
-	body := make([]byte, int(length))
-	if length != 0 {
-		_, err := io.ReadFull(rd, body)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	if err = msg.IsValid(); err != nil {
 		return nil, err
 	}
 	sig, _ := msg.Headers[FieldSignature].value.(Signature)
 	if sig.str != "" {
-		buf := bytes.NewReader(body)
-		dec = newDecoder(buf, order)
 		vs, err := dec.Decode(sig)
 		if err != nil {
 			return nil, err
