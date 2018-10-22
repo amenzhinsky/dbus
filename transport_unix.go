@@ -95,8 +95,8 @@ func (t *unixTransport) ReadMessage() (*Message, error) {
 	}
 	// csheader[4:8] -> length of message body, csheader[12:16] -> length of
 	// header fields (without alignment)
-	binary.Read(bytes.NewReader(csheader[4:8]), order, &blen)
-	binary.Read(bytes.NewReader(csheader[12:]), order, &hlen)
+	blen = order.Uint32(csheader[4:8])
+	hlen = order.Uint32(csheader[12:])
 	if hlen%8 != 0 {
 		hlen += 8 - (hlen % 8)
 	}

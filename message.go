@@ -162,7 +162,7 @@ func DecodeMessage(rd io.Reader) (msg *Message, err error) {
 	if err != nil {
 		return nil, err
 	}
-	binary.Read(bytes.NewReader(b), order, &hlength)
+	hlength = order.Uint32(b)
 	if hlength+length+16 > 1<<27 {
 		return nil, InvalidMessageError("message is too long")
 	}
@@ -195,7 +195,7 @@ func DecodeMessage(rd io.Reader) (msg *Message, err error) {
 	}
 	sig, _ := msg.Headers[FieldSignature].value.(Signature)
 	if sig.str != "" {
-		buf := bytes.NewBuffer(body)
+		buf := bytes.NewReader(body)
 		dec = newDecoder(buf, order)
 		vs, err := dec.Decode(sig)
 		if err != nil {
